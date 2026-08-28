@@ -1,0 +1,50 @@
+---
+title: "BUDA 525 Group 4 Homework 1"
+authors: "Dylan Cunningham, Brady Beckner, Ian Bush"
+date: "2026-08-28"
+output: html_document
+---
+
+```{r}
+
+install.packages("ISLR")
+
+library(ISLR)
+
+```
+
+#Problem 1
+```{r}
+bootstrap_means<-NULL
+set.seed(2004)
+
+for(j in 1:1000){
+  boot=mean(sample(College$Apps,dim(College)[1],replace=TRUE))
+  bootstrap_means=c(bootstrap_means,boot)
+}
+
+hist(bootstrap_means)
+
+quantile(bootstrap_means,c(.1,.9))
+
+```
+
+Based on this data, we can be 80% confident that the true average number of college admissions falls in the interval (2830.482, 3190.160)
+
+Method 1, storage of the means without storing the full bootstrap data was selected as it maximized memory efficiency by only retaining the values between iterations of the loop which would be used in the next step of analysis.
+
+
+
+#Problem 2
+```{r}
+
+
+```
+
+
+#Problem 3
+```{r}
+
+
+
+```
