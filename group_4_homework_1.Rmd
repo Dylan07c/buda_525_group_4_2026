@@ -13,7 +13,8 @@ library(ISLR)
 
 ```
 
-#Problem 1
+# Problem 1
+
 ```{r}
 bootstrap_means<-NULL
 set.seed(2004)
@@ -25,24 +26,113 @@ for(j in 1:1000){
 
 hist(bootstrap_means)
 
-quantile(bootstrap_means,c(.1,.9))
-
+quantile1<-quantile(bootstrap_means,c(.1,.9))
+quantile1
 ```
 
 Based on this data, we can be 80% confident that the true average number of college admissions falls in the interval (2830.482, 3190.160)
 
 Method 1, storage of the means without storing the full bootstrap data was selected as it maximized memory efficiency by only retaining the values between iterations of the loop which would be used in the next step of analysis.
 
+# Problem 2
 
+## Additional Seeds - 1,000 Bootstrap Samples
 
-#Problem 2
 ```{r}
+bootstrap_means<-NULL
+set.seed(2005)
 
+for(j in 1:1000){
+  boot=mean(sample(College$Apps,dim(College)[1],replace=TRUE))
+  bootstrap_means=c(bootstrap_means,boot)
+}
 
+quantile2<-quantile(bootstrap_means,c(.1,.9))
+quantile2
 ```
 
+```{r}
+bootstrap_means<-NULL
+set.seed(2006)
 
-#Problem 3
+for(j in 1:1000){
+  boot=mean(sample(College$Apps,dim(College)[1],replace=TRUE))
+  bootstrap_means=c(bootstrap_means,boot)
+}
+
+quantile3<-quantile(bootstrap_means,c(.1,.9))
+quantile3
+```
+
+## 5,000 Bootstrap Samples
+
+```{r}
+bootstrap_means<-NULL
+set.seed(2004)
+
+for(j in 1:5000){
+  boot=mean(sample(College$Apps,dim(College)[1],replace=TRUE))
+  bootstrap_means=c(bootstrap_means,boot)
+}
+
+quantile1a<-quantile(bootstrap_means,c(.1,.9))
+quantile1a
+```
+
+```{r}
+bootstrap_means<-NULL
+set.seed(2005)
+
+for(j in 1:5000){
+  boot=mean(sample(College$Apps,dim(College)[1],replace=TRUE))
+  bootstrap_means=c(bootstrap_means,boot)
+}
+
+quantile2a<-quantile(bootstrap_means,c(.1,.9))
+quantile2a
+```
+
+```{r}
+bootstrap_means<-NULL
+set.seed(2006)
+
+for(j in 1:5000){
+  boot=mean(sample(College$Apps,dim(College)[1],replace=TRUE))
+  bootstrap_means=c(bootstrap_means,boot)
+}
+
+quantile3a<-quantile(bootstrap_means,c(.1,.9))
+quantile3a
+```
+
+## Results & Discussion
+
+```{r}
+CI1kSample <- data.frame(
+  Seed = c(1, 2, 3),
+  Q10 = c(quantile1[1], quantile2[1], quantile3[1]),
+  Q90 = c(quantile1[2], quantile2[2], quantile3[2])
+)
+CI1kSample
+```
+
+```{r}
+CI5kSample <- data.frame(
+  Seed = c(1, 2, 3),
+  Q10 = c(quantile1a[1], quantile2a[1], quantile3a[1]),
+  Q90 = c(quantile1a[2], quantile2a[2], quantile3a[2])
+)
+CI5kSample
+```
+
+As shown in the tables above, changing the seed yields small differences in the confidence intervals because of the random sampling involved in bootstrapping. Since bootstrap samples are created by randomly sampling with replacement, slightly different observations are selected for each sample, resulting in small variations in the calculated means and confidence intervals for each seed.
+
+Increasing the number of bootstrap samples from 1,000 to 5,000 also increased the required computational time slightly, although the process was still very fast. Even with a five-fold increase in the number of bootstrap samples, the computational time was notably less than five times as long.
+
+When comparing the confidence intervals calculated using 5,000 bootstrap samples to those calculated using 1,000 samples, the results also became less sensitive to the effects of the random number generator. Using more bootstrap replications helps reduce the random variability across different seeds, producing more stable confidence interval estimates.
+
+# Problem 3
+
 ```{r}
 
 
