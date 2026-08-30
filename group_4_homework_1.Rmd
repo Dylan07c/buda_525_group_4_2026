@@ -136,5 +136,34 @@ When comparing the confidence intervals calculated using 5,000 bootstrap samples
 ```{r}
 
 
+tapply(College$Apps, College$Private, summary)
+```
+
+
+```{r}
+
+means_true=tapply(College$Apps, College$Private, mean)
+my_stat=means_true[1]-means_true[2]
+my_stat
+
+```
+
+```{r}
+set.seed(730)
+boot_diff=NULL
+for(k in 1:10000){
+  shake=sample(College$Private,dim(College)[1],replace = FALSE)
+  new_df=data.frame(Private=shake,Apps=College$Apps)
+  means=tapply(new_df$Apps,new_df$Private,mean)
+  boot_diff<-c(boot_diff,means[1]-means[2])
+}
+
+```
+
+```{r}
+hist(boot_diff)
+abline(v=means_true[1]-means_true[2],col=4)
+
+length(which(boot_diff>means_true[1]-means_true[2]))/10000
 
 ```
