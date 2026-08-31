@@ -7,8 +7,6 @@ output: html_document
 
 ```{r}
 
-
-
 library(ISLR)
 
 ```
@@ -161,7 +159,7 @@ for(k in 1:10000){
 ```
 
 ```{r}
-hist(boot_diff)
+hist(boot_diff, xlim=c(-4000,4000))
 abline(v=means_true[1]-means_true[2],col=4)
 
 length(which(boot_diff>means_true[1]-means_true[2]))/10000
