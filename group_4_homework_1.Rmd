@@ -7,7 +7,7 @@ output: html_document
 
 ```{r}
 
-install.packages("ISLR")
+
 
 library(ISLR)
 
