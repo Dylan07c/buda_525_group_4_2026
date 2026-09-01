@@ -133,13 +133,14 @@ When comparing the confidence intervals calculated using 5,000 bootstrap samples
 
 ```{r}
 
+#calculating the summary
 
 tapply(College$Apps, College$Private, summary)
 ```
 
 
 ```{r}
-
+#calculating the mean number of applications for each Private group
 means_true=tapply(College$Apps, College$Private, mean)
 my_stat=means_true[1]-means_true[2]
 my_stat
@@ -149,6 +150,9 @@ my_stat
 ```{r}
 set.seed(730)
 boot_diff=NULL
+
+# Repeating the randomization process 10,000 times
+
 for(k in 1:10000){
   shake=sample(College$Private,dim(College)[1],replace = FALSE)
   new_df=data.frame(Private=shake,Apps=College$Apps)
@@ -159,9 +163,15 @@ for(k in 1:10000){
 ```
 
 ```{r}
+# Creating a histogram of the 10,000 randomized differences
 hist(boot_diff, xlim=c(-4000,4000))
+
+#Added a line showing the actual observed difference
 abline(v=means_true[1]-means_true[2],col=4)
 
 length(which(boot_diff>means_true[1]-means_true[2]))/10000
 
 ```
+#Comments on data size:
+
+The data size of 777 seems to be enough to come to a conclusion. 777 colleges is a relatively large data set for a college analysis. I believe the number to be more cautious of when analyzing is the fact that the data set is from 1995, which could make it a little outdated if you are still using it to draw conclusions today.
