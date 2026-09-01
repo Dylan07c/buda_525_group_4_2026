@@ -136,18 +136,18 @@ When comparing the confidence intervals calculated using 5,000 bootstrap samples
 #calculating the summary
 
 tapply(College$Apps, College$Private, summary)
-```
 
 
-```{r}
+
+
 #calculating the mean number of applications for each Private group
 means_true=tapply(College$Apps, College$Private, mean)
 my_stat=means_true[1]-means_true[2]
 my_stat
 
-```
 
-```{r}
+
+
 set.seed(730)
 boot_diff=NULL
 
@@ -160,9 +160,9 @@ for(k in 1:10000){
   boot_diff<-c(boot_diff,means[1]-means[2])
 }
 
-```
 
-```{r}
+
+
 # Creating a histogram of the 10,000 randomized differences
 hist(boot_diff, xlim=c(-4000,4000))
 
