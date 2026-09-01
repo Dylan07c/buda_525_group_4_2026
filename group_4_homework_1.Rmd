@@ -175,3 +175,5 @@ length(which(boot_diff>means_true[1]-means_true[2]))/10000
 #Comments on data size:
 
 The data size of 777 seems to be enough to come to a conclusion. 777 colleges is a relatively large data set for a college analysis. I believe the number to be more cautious of when analyzing is the fact that the data set is from 1995, which could make it a little outdated if you are still using it to draw conclusions today.
+
+The p-value is significant, showing there is strong evidence that public schools receive more applications than private schools.
