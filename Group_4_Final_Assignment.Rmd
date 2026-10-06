@@ -1,6 +1,6 @@
 ---
-title: "BUDA 525 Final— Group Assignment-- DUE OCT 8, 2026 by 11:59PM"
-author: "Brad Price"
+title: "BUDA 525 Final— Group Assignment"
+author: "Brady Beckner, Ian Bush, Dylan Cunningham"
 date: "9/28/2026"
 output: word_document
 ---
