@@ -9,43 +9,297 @@ output: word_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Directions
+# Problem 1 (20 points)
 
-This is the final group project for BUDA 525.  Submit both the .Rmd and word document to the appropriate link on ecampus by 11:59 on Thursday October 8, 2025.  There are 4 questions on this assignment.  The first two questions are discussion type questions which require no data analysis but do require substantial insights into the material that has been covered.  The final two questions are data analysis type questions which require you to analyze data and communicate relevant findings.  You should only show results in this document that relevant to your discussions. Remember you can use ECHO=FALSE, and other R markdown arguments to present your code.  Since I have the .Rmd I can see all code that was not presented in the word document. 
+Bootstrap and randomization testing both use the data that we have available to get a deeper understanding of a statistical problem. Bootstrap is typically used to see how much a statistic such as the mean or median changes from sample to sample. Bootstrap does this by taking samples from the original dataset with replacement and calculating the statistic each time. A randomization test is used when testing whether there is a difference or relationship between groups. Randomization tests change the group labels and calculate the statistic multiple times to create a distribution based on the assumption of the null hypothesis being true. You can then compare the actual result to the distribution and calculate the p-value. The main difference between bootstrap and randomization tests is that bootstrap looks at how much the statistic could vary, and randomization tests look at whether the result could have happened by chance if the null hypothesis were true. For a novice, you can think of a bootstrap as repeatedly creating new versions of your sample to see how much your answer changes. A randomization test is mixing up the groups to see how often we would get a result similar to the one we actually found. You can have confidence in these methods because they repeat the process many times, which gives a better idea of the differences in results we could expect instead of relying on just one sample or calculation.
 
+# Problem 2 (20 Points)
 
-## Problem 1 (20 points)
+The model selection procedures we have used in this course help us decide which model is better, but they work in different ways.  R-squared shows us how much of the variation in the response is explained by the model. A higher R-squared typically means the model fits the data better, but it can also go up when more variables are added, so it does not immediately mean the model is better. ANOVA can be used to compare nested models and see if adding variables makes any real difference. AIC and BIC look at how well the model fits and also consider how many variables are in the model. For both AIC and BIC, a lower value is typically better. These methods work best when comparing models using the same data and tend to focus more on model fit than on data prediction. K-Fold Cross Validation and Random Splitting focus on how well a model will predict new data. K-Fold Cross Validation splits the data into multiple groups, and the model is trained on some of the groups and tested on the groups that are not included. This repeats until each group is used for testing. Random Splitting is similar, but the training and testing groups are randomly selected, and the process allows for it to be repeated. These are useful when the goal is prediction, but they may not work as well with data that has a certain order. We prefer K-Fold Cross Validation because it gives a good understanding of how the model will perform on new data and uses the observation data from both the training and the testing.
 
-Compare and contrast the bootstrap and randomization test procedures we have discussed.  In this discussion you should describe the purpose of each method (why would you use them), the procedure they follow, and then how they differ. Finally give a few sentences on each that would explain to a novice what these methods do and why we should trust their results.
+# Problem 3 (30 Points)
 
-<!-- 
-# Bootstrap and randomization testing both use the data that we have available to get a deeper understanding of a statistical problem. Bootstrap is typically used to see how much a statistic such as the mean or median changes from sample to sample. Bootstrap does this by taking samples from the original dataset with replacement and calculating the statistic each time. A randomization test is used when testing whether there is a difference or relationship between groups. Randomization tests change the group labels and calculate the statistic multiple times to create a distribution based on the assumption of the null hypothesis being true. You can then compare the actual result to the distribution and calculate the p-value. The main difference between bootstrap and randomization tests is that bootstrap looks at how much the statistic could vary, and randomization tests look at whether the result could have happened by chance if the null hypothesis were true. For a novice, you can think of a bootstrap as repeatedly creating new versions of your sample to see how much your answer changes. A randomization test is mixing up the groups to see how often we would get a result similar to the one we actually found. You can have confidence in these methods because they repeat the process many times, which gives a better idea of the differences in results we could expect instead of relying on just one sample or calculation.
--->
-
-
-## Problem 2 (20 Points)
-
-Compare and contrast the model selection procedures we've discussed in this course.  Specifically focus your discussion on R-squared, Anova, AIC, BIC, K-Fold Cross Validation, and Random Splitting.  You should further focus on when are these methods able to be used and when are they not.  Finally discuss your preference for  a technique and give reasons why.
-
-
-<!--
-# The model selection procedures we have used in this course help us decide which model is better, but they work in different ways.  R-squared shows us how much of the variation in the response is explained by the model. A higher R-squared typically means the model fits the data better, but it can also go up when more variables are added, so it does not immediately mean the model is better. ANOVA can be used to compare nested models and see if adding variables makes any real difference. AIC and BIC look at how well the model fits and also consider how many variables are in the model. For both AIC and BIC, a lower value is typically better. These methods work best when comparing models using the same data and tend to focus more on model fit than on data prediction. K-Fold Cross Validation and Random Splitting focus on how well a model will predict new data. K-Fold Cross Validation splits the data into multiple groups, and the model is trained on some of the groups and tested on the groups that are not included. This repeats until each group is used for testing. Random Splitting is similar, but the training and testing groups are randomly selected, and the process allows for it to be repeated. These are useful when the goal is prediction, but they may not work as well with data that has a certain order. We prefer K-Fold Cross Validation because it gives a good understanding of how the model will perform on new data and uses the observation data from both the training and the testing.
--->
-
-## Problem 3 (30 Points)
-
-In the `Credit` data in the `ISLR` package it contains 400 customers and information on their credit history.  For full information of the data look at the `help` file.  A company has approached us to better understand factors that influence the `Balance` variable which is average credit card balance in USD.  Using the information in the model discuss the influential factors, and discuss the factors you choose to put in the model.  Do you have any concerns about the use of certain variables in the model? Discuss how your model was created and any insights you can provide based on the results.  HINT:  Adding Gender and/or Ethnicity could be controversial or illegal in some uses of this this model you should discuss your decision on these variables and how it effects the organizations ability to use your model for prediction or inference.  
-
-
-```{r}
+```{r, include=FALSE}
 library(ISLR)
-head(Credit)
+library(effects)
+library(dplyr)
+library(MASS)
+library(car)
+library(caret)
 ```
 
+## 1. Identifying Problem/Goal 
 
-## Problem 4 (30 Points)
+The problem we are trying to solve is to identify what variables are influencing customer's credit card balance. In order to do this we will analyze the data set, examine potential predictor variables and possible interaction, compare various models, and finally select the model that best explains the variable balance while remaining interpretable for the credit card company.
 
-The `Salaries` data in the `carData` package contains information on academic salaries in 2008 and 2009 in a college in the US. A data dictionary can be found in the `help` file for the data. This data was collected as part of an on-going effort of the college to monitor salary differences between male and female faculty members.  We have been asked to investigate the gender gap in the data, but also what other information that may be relevant to administrators (i.e. salary growth for years of service, discipline based growth, etc).  Investigate if there is a gender gap, but also provide insights on other drivers that you may see of salary in the data.  Is your model suitable to make offers based on the information provided?  Explain your reasoning.  Provide insights into any other information you find of interest.  
+## 2. Exploring the Data
+
+```{r}
+summary(Credit)
+dim(Credit)
+```
+
+Here we are looking at a summary of the data being provided as well as the number of observations it contains. We can see that our data contains 400 observations with 10 possible predictor variables for balance. 
+
+```{r, echo=FALSE, fig.width=10, fig.height=14}
+par(mfrow=c(5, 2))
+par(mar=c(4, 4, 2, 1))
+
+plot(Balance ~ Income, data=Credit)
+plot(Balance ~ Limit, data=Credit)
+plot(Balance ~ Rating, data=Credit)
+plot(Balance ~ Age, data=Credit)
+
+boxplot(Balance ~ Education, data=Credit)
+boxplot(Balance ~ Cards, data=Credit)
+boxplot(Balance ~ Gender, data=Credit)
+boxplot(Balance ~ Student, data=Credit)
+boxplot(Balance ~ Ethnicity, data=Credit)
+boxplot(Balance ~ Married, data=Credit)
+par(mfrow=c(1, 1))
+```
+
+Then we plot each possible predictor against balance to look for relationships and interesting trends. 
+
+```{r}
+plot(Limit ~ Rating, data=Credit)
+sum(Credit$Balance == 0)
+```
+
+From this we identify one possible issue and find high correlation between two possible predictors. First is the issue around the zero data points in our response variable balance, we see that 90 of our observations contain zeros for the balance variable. Rating and Limit also appear to be highly correlated, which intuitively makes sense. Individuals with a higher credit rating are usually given higher credit limits.
+
+## 3. Initial Model
+
+```{r}
+M0 <- lm(Balance ~ Income + Limit + Rating + Cards + Age + Education + Gender + Student + Married + Ethnicity, data=Credit)
+
+summary(M0)
+```
+
+The initial model we develop includes all possible predictors as they could potentially be influential regardless of our initial assumptions. On a preliminary look at the model coefficients, we see that it is likely the case the several variables are not benefiting our model. These include Education, Gender, Married, and Ethnicity. This is notable because as discussed in the prompt, if used, Gender and Ethnicity may limit are models usefulness to the customer. 
+
+## 4. Check Assumptions
+
+```{r, echo=FALSE}
+par(mfrow=c(2,2))
+plot(M0)
+```
+
+```{r, echo=FALSE}
+residualPlots(M0)
+```
+
+```{r, echo=FALSE}
+ncvTest(M0)
+```
+
+Next we checked our initial model for linearity, constant variance, normality, and any points of influence. This is where we began to see issues associated with the zero values in the response variable. The residuals vs. fitted plot was showing a clear V-shape pattern, making it clear that we were not fully capturing the relationship between the predictors and response. Again this was supported by the curvature in Income, Limit, and Rating, and the Tukey test. We also ran a non constant variance test which returned a small P-value, providing more evidence against constant variance. This led to a farther investigation of whether the zero balances were causing the issue in seen in our residual pattern.
+
+**AI ASSISTED CODE FOR GRAPHIC**
+```{r, echo=FALSE}
+plot(M0, which=1)
+abline(a=0, b=-1, col="blue", lty=2)
+
+sum(fitted(M0)<0)
+```
+
+To investigate the zero balances we added in blue line showing where residuals equaled negative fitted values. Since residuals = observed - fitted values, every customer with a zero balance has to fall on this line. As seen in the graph this explained the downward section in the residual pattern. Additionally, we counted how many fitted balances were negative because the response is non-negative these are not meaningful.
+
+## 5. Addressing Assumption Problems
+
+Not included in this section is various other methods that were attempted before looking to remove data points. Transformations using PowerTransform and boxcox were explored; however, none yield results that would agree with linear model assumptions.
+
+```{r}
+CreditPB <- Credit%>%filter(Balance > 0)
+```
+
+From here we decided to instead refocus our analysis on customers with a positive balance. In this situation without using a different model entirely, we felt this was the best option for the customer. Using this smaller subset of data, the credit-card company can still understand what is influencing balances among customers who currently owe money. This is important as it can help them understand a key segment of their customer base. From this point we narrowed our analysis down to the data with existing balances rather than whether a balances was carried at all.  
+
+```{r}
+summary(CreditPB)
+dim(CreditPB)
+```
+
+After removing the observations containing zero data in the Balance variable we saw total observation decrease by 90 to 310. Our summary statistic on the new data set confirmed that the new minimum in Balance was now 5.
+
+```{r}
+M1 <- lm(Balance ~ Income + Rating + Limit + Cards + Age + Education + Gender + Student + Married + Ethnicity, data=CreditPB)
+```
+
+The model was then refit using the new data and assumptions were rechecked. 
+
+## 6. Rechecking Assumptions
+
+```{r, echo=FALSE}
+par(mfrow=c(2,2))
+plot(M1)
+```
+
+```{r, echo=FALSE}
+residualPlots(M1)
+```
+
+```{r, echo=FALSE}
+ncvTest(M1)
+```
+
+After refitting the model we checked the assumptions again. This time residuals were more evenly scattered around 0, and the strong pattern seen initially was gone. The non-constant variance test showed a large P-value, providing no evidence against constant variance. The individual curvature tests also had P-values above 0.05, providing no significant evidence of curvature for the tested predictors. In addition, the Q-Q plot showed an improvement, suggesting that the residuals now better agreed with the assumption of normality. This all pointed to continuing with a positive balance only model.
+
+## 7. Initial Model Review 
+
+```{r, echo=FALSE}
+summary(M1)
+```
+
+The review of our initial model showed that at the 0.05 level Income, Rating, Limit, Cards, Age, and Student were statistically significant. Education, Gender, Married, and Ethnicity  were found not significant, meaning we may be able to simplify the model.
+
+Additionally, we saw that R^2 and adjusted R^2 showed our model explaining approximately 99.94% of the variation in positive balances within the data. This showed a strong fit, but we decided to explore interaction regardless to ensure all possible predictors were included. 
+
+## 8. Exploring Interaction Variables
+
+```{r, include=FALSE}
+M2 <- lm(Balance ~ Income*Student + Rating + Limit + Cards + Age + Education + Gender + Married + Ethnicity, data=CreditPB)
+```
+
+```{r, echo=FALSE}
+anova(M1, M2)
+```
+
+```{r, include=FALSE}
+M3 <- lm(Balance ~ Income + Rating + Limit*Student + Cards + Age + Education + Gender + Married + Ethnicity, data=CreditPB)
+```
+
+```{r, echo=FALSE}
+anova(M1, M3)
+```
+
+```{r, include=FALSE}
+M4 <- lm(Balance ~ Income*Limit + Rating + Cards + Age + Education + Gender + Student + Married + Ethnicity, data=CreditPB)
+```
+
+```{r, echo=FALSE}
+anova(M1, M4)
+```
+
+```{r, include=FALSE}
+M5 <- lm(Balance ~ Income*Limit + Limit*Student + Rating + Cards + Age + Education + Gender + Married + Ethnicity, data=CreditPB)
+```
+
+```{r, echo=FALSE}
+anova(M4, M5)
+anova(M3, M5)
+```
+
+In this section we explored using the following interaction variables in the model: Income × Student, Limit × Student, Income × Limit, and both Income × Limit and Limit × Student together. 
+
+The ANOVA comparisons for all these produced P-values greatly exceeding 0.05, and we found no evidence that any of the test interactions were worth retaining. After this we moved on to looking at simplifying our model.
+
+## 9. Model Simplification and Selection
+
+```{r, include=FALSE}
+MNull <- lm(Balance ~ 1, data=CreditPB)
+```
+
+```{r, include=FALSE}
+MBAIC <- step(M1, direction="backward")
+
+MFAIC <- step(MNull, scope=list(lower=formula(MNull), upper=formula(M1)), direction="forward")
+```
+
+```{r, include=FALSE}
+MBBIC <- step(M1, direction="backward", k=log(nobs(M1)))
+
+MFBIC <- step(MNull, scope=list(lower=formula(MNull), upper=formula(M1)), direction="forward", k=log(nobs(M1)))
+```
+
+```{r}
+formula(MBAIC)
+formula(MFAIC)
+formula(MBBIC)
+formula(MFBIC)
+```
+
+We used forward and backward selection with AIC and BIC to test whether we could simplify the model. Both directions selected the same predictors for each criteria. AIC used Income, Rating, Limit, Cards, Age, Student, and Married; while BIC selected Income, Rating, Limit, Cards, Age, and Student. 
+
+```{r}
+anova(M1, MBAIC)
+anova(M1, MFAIC)
+anova(M1, MBBIC)
+anova(M1, MFBIC)
+```
+
+Using ANOVA to compare to the full model, we saw P-values of 0.9213 for the AIC model and 0.5491 for the BIC model. This lends evidence that the added variables did not significantly improve model fit.
+
+```{r, echo=FALSE}
+anova(MBAIC, MBBIC)
+```
+
+Comparing them to each other looks at the variable Married. Here we see a much smalled P-value, however it is still slightly above our 0.05 significance level. Because of its proximity we decided to use these two models as our candidates for prediction testing. 
+
+```{r, echo=FALSE}
+Model1A <- MBAIC
+Model1B <- MBBIC
+```
+
+```{r, include=FALSE}
+summary(Model1A)
+summary(Model1B)
+```
+
+## 10. Prediction Accuracy Testing
+
+```{r, echo=FALSE}
+set.seed(1)
+F5 <- createFolds(CreditPB$Balance, k=5, returnTrain=TRUE)
+C5 <- trainControl(method="cv", number=5, index=F5)
+```
+
+```{r, echo=FALSE}
+Model1A_CV <- train(formula(Model1A), data=CreditPB, method="lm", trControl=C5)
+Model1B_CV <- train(formula(Model1B), data=CreditPB, method="lm", trControl=C5)
+```
+
+**AI ASSISTED CODE**
+```{r}
+rbind(Model1A = Model1A_CV$results[, c("RMSE", "Rsquared", "MAE")],
+      Model1B = Model1B_CV$results[, c("RMSE", "Rsquared", "MAE")])
+```
+
+We compared prediction accuracy using five-fold cross-validation. Both models were fitted on approximately 80% of the data and tested on the other 20%, repeated across 5 folds. This produced the results seen above. 
+
+Although Model1A has slightly lower prediction errors the differences were very small (Around 0.04 for RMSE and 0.06 for MAE). Due to this we decided on Model1B as our final model because it gave nearly identical predictions with fewer predictors making it more interpretable. 
+
+## 11. Final Model Review
+
+```{r}
+summary(Model1B)
+par(mfrow=c(2,2))
+plot(Model1B)
+```
+
+## 12. Discussion & Interpretation
+
+Our final model identifies Income, Rating, Limit, Cards, Age, and Student as statistically significant predictors of positive balances. Interpreting each coefficient while holding the other constant tells us the following:
+
+- **Income:** For every \$1,000 increase in income, the model estimates a decrease in balance of about \$9.99.
+
+- **Rating:** For every 100-point increase in rating, the model estimates a decrease in balance of about \$15.01. Since Rating and Limit are highly correlated, this is the relationship with Rating when Limit is held constant.
+
+- **Limit:** For every \$1,000 increase in credit limit, the model estimates an increase in balance of about \$336.50.
+
+- **Cards:** For each additional credit card, the model estimates an increase in balance of about \$25.50.
+
+- **Age:** For each additional year of age, the model estimates a decrease in balance of about \$1.00.
+
+- **Student:** The model estimates that students have balances about \$501 higher than non students with the same values for the other predictors.
+
+All of these findings help the company understand differences in the amount owed among customers WHO CARRY A BALANCE. These are associations though so it should not be assumed that by say increasing a customers credit limit you would see the estimated change in balance. All of the above conclusions do not extend to customers with a zero balance or explain what factors influence whether or not someone will carry a balance. 
+
+Initially we included Gender and Ethnicity to see whether they helped to better explain Balance. However, both were removed during model selection without sacrificing model fit. This allowed us to simplify the model and not have to rely on potentially problematic predictors. For the credit card company, study difference across demographics isn't necessarily problematic however if used for make decisions on individual customer it can be. Our model does not use these to explain or predict positive balances. It would still be appropriate for the model to be evaluated for legal and ethical compliance before model predictions or inference sway decision making.
+
+
+# Problem 4 (30 Points)
+
 ```{r, echo=FALSE, results='hide'}
 library(carData)
 head(Salaries)
