@@ -46,7 +46,77 @@ head(Credit)
 ## Problem 4 (30 Points)
 
 The `Salaries` data in the `carData` package contains information on academic salaries in 2008 and 2009 in a college in the US. A data dictionary can be found in the `help` file for the data. This data was collected as part of an on-going effort of the college to monitor salary differences between male and female faculty members.  We have been asked to investigate the gender gap in the data, but also what other information that may be relevant to administrators (i.e. salary growth for years of service, discipline based growth, etc).  Investigate if there is a gender gap, but also provide insights on other drivers that you may see of salary in the data.  Is your model suitable to make offers based on the information provided?  Explain your reasoning.  Provide insights into any other information you find of interest.  
-```{r}
+```{r, echo=FALSE, results='hide'}
 library(carData)
 head(Salaries)
+names(Salaries)
+
+unique(Salaries$rank)
+print("============")
+unique(Salaries$discipline)
+print("============")
+unique(Salaries$sex)
+
 ```
+
+
+```{r, ech=FALSE}
+
+baseline <- lm(salary ~ factor(rank) + factor(discipline) + yrs.since.phd + yrs.service, data = Salaries)
+
+sex_as_factor <- lm(salary ~ factor(rank) + factor(discipline) + factor(sex) + yrs.since.phd + yrs.service, data = Salaries)
+
+summary(sex_as_factor)
+
+anova(baseline, sex_as_factor)
+```
+Looking at model coefficients, we observe, both from anova and when viewing model coefficients (since the factor is binary), that sex as a factor garners a P value of 0.216, failing to indicate at the 0.05 or 0.01 level that sex contributes statistically significant predictive value to the model, meaning that it is not indicated to be a substantial influencer of salary. 
+
+Both the associate professor and professor ranks show statistically significant predictive value vs the reference category of assistant professor, applied departments (discipline B) show statistically significant difference in salary vs theoretical departments (discipline A). 
+
+With P values of 0.027 and 0.021 respectively, years since phd and years of service are indicated to add predictive value at the 0.05 level but not at the 0.01 level.
+
+
+```{r, echo=FALSE}
+
+point_01 <- lm(salary ~ factor(rank) + factor(discipline), data=Salaries)
+point_01_int <- lm(salary ~ factor(rank)*factor(discipline), data=Salaries)
+
+confint(point_01)
+confint(point_01_int)
+
+
+set.seed(115)
+Samp=sample(1:length(Salaries$salary),length(Salaries$salary),replace=FALSE)
+
+Sid=rep(5, length(Salaries$salary))
+Sid[Samp[1:79]]=1
+Sid[Samp[79:158]]=2
+Sid[Samp[158:237]]=3
+Sid[Samp[237:316]]=4
+Sid[Samp[316:397]]=5
+
+
+base_SS=0
+point_01_SS=0
+
+for(i in 1:5){
+    set=which(Sid==i)
+    
+    base_SS = base_SS + sum((Salaries$salary[set] - predict(baseline, newdata=Salaries[set,]))^2)
+    point_01_SS = point_01_SS + sum((Salaries$salary[set] - predict(point_01, newdata=Salaries[set,]))^2)
+}
+
+
+print(base_SS)
+format(point_01_SS, scientific = TRUE)
+
+confint(baseline)
+#Supposed to do K-fold or is R-Squared of model sufficient
+
+```
+
+A model was proposed comprised only of factors found statistically significant at the 0.01 level, namely rank and discipline. Two versions were compared, one additive and one modeling the factors as an interaction. On comparing confidence intervals, the majority of intervals for the interaction model were found to contain zero, indicating limited predictive value. To compare against the baseline model excluding sex as a factor, 5 fold cross validation was employed, and while the difference was not extreme, rss was greater for the proposed model, implying better accuracy from the model including rank, discipline, years since phd, and years of service.
+
+The parameters are appropriate criteria to use in salary setting i.e job seniority, placement, and level of experience.
+This said, confidence intervals are relatively wide, and I would advise that, if the model is desired to be used in the salary process, that it be used to construct budget ranges than exact compensation.
